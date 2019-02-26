@@ -1,19 +1,11 @@
 ﻿# -*- coding: utf-8 -*-
 import os
-if os.environ.get("DOCKER"):	#docker部署
-	MY_SERVER_IP_IN = "0.0.0.0"
-	MY_SERVER_IP_EX = "47.107.228.44"
-	MY_SERVER_NUM = int(os.environ["SERVERID"])
-	MY_DB_NAME = os.environ.get("DBNAME","dv")
-	MY_DB_HOST = os.environ.get("DBHOST","172.17.0.1")
-	MY_DB_PWD = os.environ.get("DBPWD","testman")
-else:
-	MY_SERVER_IP_IN = "192.168.1.7"	#内网IP
-	MY_SERVER_IP_EX = "192.168.1.7"	#外网IP
-	MY_SERVER_NUM = 3			#服务器消息队列集群限制必须在1-999内,端口分配完全不重合必须限制在1-780内
-	MY_DB_NAME = "dv"
-	MY_DB_HOST = "127.0.0.1"
-	MY_DB_PWD = "testman"
+MY_SERVER_IP_IN = "192.168.1.7"	#内网IP
+MY_SERVER_IP_EX = "192.168.1.7"	#外网IP
+MY_SERVER_NUM = 3			#服务器消息队列集群限制必须在1-999内,端口分配完全不重合必须限制在1-780内
+MY_DB_NAME = "dv"
+MY_DB_HOST = "127.0.0.1"
+MY_DB_PWD = "testman"
 SN = MY_SERVER_NUM
 
 ServerCnf={
