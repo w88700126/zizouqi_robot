@@ -1,1 +1,1 @@
-killall pythin
+killall python

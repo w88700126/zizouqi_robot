@@ -78,8 +78,8 @@ def Start():
 	if reactor.running:
 		return
 	import servercnf
-	if os.name != "nt":
-		log.startLogging(file("../twisted_%s.txt"%servercnf.ServerCnf["servertype"],"a+"))
+# 	if os.name != "nt":
+# 		log.startLogging(file("../twisted_%s.txt"%servercnf.ServerCnf["servertype"],"a+"))
 	reactor.run()
 	
 def Stop():
