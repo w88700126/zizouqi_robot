@@ -1,0 +1,194 @@
+syntax = "proto3";
+package msg;
+
+import "common.proto";
+
+
+/*******define***********/
+
+
+/*******gamedata*********/
+
+message CommonInfo{
+string   RankSeasonBeginTime             = 1;   //赛季第一次开始时间 格式：2018-02-06
+uint32   PvpMatchMaxPlayers              = 2;
+uint32   EscapeMatchMaxPlayers           = 3;
+uint32   ChatMsgMaxLen                   = 4;   //聊天最大长度
+repeated Consume BuyEggConsume           = 5;   //购买扭蛋消耗
+uint32   UserNameMaxLen                  = 6;   //玩家名字最大长度
+string   DefaultHeadPics                 = 7;   //默认头像列表
+}
+
+//全局配置表
+message GlobalInfo {
+string               RefreshTimeDaily         = 3;  //每日刷新时间点
+uint32               RefreshTimeWeekly        = 4;  //每周刷新点
+uint32               InitMoney                = 6;  //初始金币
+uint32               InitMMR                  = 9;  //初始MMR
+uint32               RemoveCondMatchMMRMaxGap = 10;
+uint32               RankMatchMMRMaxGap       = 11;
+uint32               MatchMinWaitTime         = 12;
+uint32               MatchCondLoseTime        = 13;
+uint32               MatchMMRMaxGap           = 14;
+uint32               MatchMMREnlargeValue     = 15;
+uint32               MatchWinMaxGap           = 16;
+uint32               RankMatchMinWaitTime         = 17;
+uint32               RankMatchCondLoseTime        = 18;
+uint32               RankMatchMMREnlargeValue     = 19;
+uint32               RankMatchWinMaxGap           = 20;
+uint32               RankMatchMMRMinGap        =21;
+uint32               RankMatchMMREnlargeTime   =22;
+uint32               RankMatchStrictMinCup     =23;
+uint32               RankMatchHungerTime       =24;
+uint32               PveMaxMatchTime           =25;
+uint32               PveMatchScoreGap          =26;
+string               ChatDirtyWordTip          =27;
+uint32               DailyCandyMax             =28; //每日对战获得糖果限制
+uint32               DefaultChessPlayer        =29; //默认装备棋手
+uint32               DefaultScene              =30; //默认场景
+string               InitChessPlayerList       =31; //初始棋手列表
+string               InitSceneList             =32; //初始场景列表
+}
+
+message CupData{
+uint32  Cup                     = 1;//杯段
+string  Name                    = 2;//杯段名称
+uint32  Score                   = 3;//所需分数
+uint32  BufferScore             = 4;//缓冲分
+uint32  SeasonResetScore        = 5;//赛季重置分数
+string  Info                    = 6;//该字段客户端使用
+uint32  MMRBasicFailK           = 7;//MMR失败基本分调整系数
+}
+
+message CupInfo{
+repeated CupData Datas = 1;
+}
+
+message CupMatchPerfectData{
+uint32          Cup                     = 1;//杯段
+uint32          WaitTime                = 2;
+uint32          PlayerCount             = 3;
+uint32          MmrGap                  = 4;
+uint32          TiredTime               = 5;
+}
+
+message CupMatchPerfectInfo{
+repeated    CupMatchPerfectData    Datas = 1;    
+}
+
+message CupMatchExtendData{
+uint32          Cup                         = 1;//杯段
+uint32          PlayerCountCycleTime        = 2;
+uint32          PlayerCountEnlargeValue     = 3;
+uint32          MinPlayerCount              = 4;
+uint32          MMRGapCycleTime             = 5;
+uint32          MMRGapEnlargeValue          = 6;
+uint32          MaxMMRGap                   = 7;
+}
+
+message CupMatchExtendInfo{
+repeated    CupMatchExtendData    Datas = 1;
+}
+
+//排位赛季结算奖励
+message RankSeasonEvalData{
+uint32         Season   = 1; //赛季
+uint32         Cup      = 2; //杯段
+uint32         WinCount = 3; //Awards所需胜利场次
+}
+
+message RankSeasonEvalInfo{
+repeated RankSeasonEvalData Datas = 1;
+}
+
+message Language{
+GAMEZONE_TYPE   Type = 1;
+string          Text = 2;
+}
+
+message LanguageData{
+string                  Id          = 1;
+repeated Language       Languages   = 2;
+}
+
+message LanguageInfo{
+repeated LanguageData Datas = 1;    
+}
+
+//昵称表
+message NickNameInfo {
+repeated NickName    Datas        = 1;
+}
+
+message NickName {
+string               NickName     = 1;   //昵称
+}
+
+//脏字表
+message DirtyWordInfo {
+repeated DirtyWord    Datas       = 1;
+}
+
+message DirtyWord {
+string               DirtyWord    = 1;   //脏字
+}
+
+message ActiveCodeInfo{
+repeated    ActiveCode  Datas     = 1;    
+}
+
+message ActiveCode {
+string               Code    = 1;
+}
+
+//道具表
+message ItemInfo {
+repeated    ItemDetail  Datas      = 1;
+}
+
+message ItemDetail {
+uint32          Id              = 1;    //道具Id
+ITEMTYPE        Type            = 2;    //道具类型
+string          Name            = 3;    //道具名称
+ITEMQUALITY     Quality         = 4;    //道具品质
+string          Icon            = 5;    //道具ICON
+repeated Award  ConvertAwards   = 6;    //道具折算价格
+string          Desc            = 7;    //道具描述
+string          Model           = 8;    //道具模型标识
+ITEMACCUMTYPE   CanMultiply     = 9;    //是否可叠加
+ITEMSELLSTATUS  CanSell         = 10;   //是否可出售
+}
+
+//扭蛋随机表
+message EggAwardInfo {
+repeated    EggAward    Datas   = 1;
+}
+
+message EggAward {
+uint32          Id          = 1;    //奖励序列号
+Award           AwardItem   = 2;    //奖励
+uint32          Weight      = 3;    //权重
+}
+
+//改名表
+message SetNameData{
+uint32   Count              = 1;  //次数
+repeated Consume Consumes   = 2;  //消耗列表
+}
+
+message SetNameInfo{
+repeated SetNameData   Datas  = 1;
+}
+
+//名字随机表
+message RandomNameInfo {
+repeated RandomNameData Datas   = 1;
+}
+
+message RandomNameData {
+string  SingleName          = 1;    //单名
+string  CombinedName1       = 2;    //组合名1
+string  CombinedName2       = 3;    //组合名2
+string  CombinedName3       = 4;    //组合名3
+string  CombinedName4       = 5;    //组合名4
+}

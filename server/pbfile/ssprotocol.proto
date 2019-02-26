@@ -1,0 +1,528 @@
+syntax = "proto3";
+package msg;
+
+import "common.proto";
+
+//协议消息说明
+//SSReq消息结构：
+//HeadLen(2字节大端序int) + SSHead（protocbuf序列化） + SSReqBody（protocbuf序列化）
+//SSRsp消息结构：
+//HeadLen(2字节大端序int) + SSHead（protocbuf序列化） + SSRspBody（protocbuf序列化）
+//SSNtf消息结构：
+//HeadLen(2字节大端序int) + SSHead（protocbuf序列化） + SSNtfBody（protocbuf序列化）
+
+
+
+/*************************消息ID BEG********************************/
+enum SSMsgID {
+//SSReq消息ID范围为 1-999
+SS_REQ_BEGIN                = 0;     //保留
+SS_REQ_PVP                  = 1;     //pvp匹配请求 hallsvr->matchsvr hallsvr->teamsvr
+SS_REQ_PVP_APPLY            = 2;     //pvp对战请求 matchsvr->pvpsvr
+SS_REQ_PLAYERS_STATUS       = 3;
+SS_REQ_SEND_MAIL            = 4;
+SS_REQ_GET_MAIL_DATA        = 25;    //获取邮件数据 hallsvr->mailsvr
+SS_REQ_PLAYERS_BASEINFO     = 16;    //请求玩家基础信息获取 hallsvr->snssvr
+SS_REQ_GET_NUM_RANK         = 18;    //获取排行榜数据   hallsvr->ranksvr
+SS_REQ_PLAYER_DETAILINFO    = 19;    //获取玩家详细信息 hallsvr->snssvr
+SS_REQ_LOGIN                = 20;
+SS_REQ_PVP_MATCH_CANCEL     = 21;
+SS_REQ_DB_OP                = 22;
+
+//SSRsp消息ID范围为 1001-1999
+SS_RSP_BEGIN                = 1000;  //保留
+SS_RSP_FUTURE_CALLBACK      = 1001;  //future事件回调
+SS_RSP_PVP                  = 1002;  //pvp匹配请求 matchsvr->hallsvr
+SS_RSP_PVP_APPLY            = 1004;  //pvp对战请求 pvpsvr->matchsvr
+SS_RSP_PVP_MATCH_CANCEL     = 1005;  //pvp匹配取消请求 matchsvr->hallsvr
+
+//SSNtf消息ID范围为 2001-2999
+SS_NTF_BEGIN                 = 2000;  //保留
+SS_NTF_SERVER_NAME           = 2001;  //告知服务端名字
+
+SS_NTF_HALL_STATUS           = 2002;  //hallsvr状态通知  hallsvr->balancesvr
+
+SS_NTF_HALL_SERVER_HELLO     = 2003;
+SS_NTF_PLAYERS_STATUS        = 2004;
+SS_NTF_CONNECT_PLAYER        = 2005;
+SS_NTF_DIS_CONNECT_PLAYER    = 2006;
+SS_NTF_PLAYER_MESSAGE_WRAP   = 2007;
+SS_NTF_PVP_STATUS            = 2008;
+SS_NTF_PVP_MATCH             = 2009;  //pvp匹配通知 matchsvr->hallsvr
+SS_NTF_PVP                   = 2010;  //pvp匹配成功Ntf matchsvr->hallsvr
+SS_NTF_PVP_MATCH_CANCEL      = 2011;
+SS_NTF_PAY                   = 2012;  //支付通告         paymentsvr->statussvr->hallsvr
+SS_NTF_NEW_MAIL              = 2013;  //新邮件           mailsvr->statussvr->hallsvr
+SS_NTF_NEW_GLOBAL_MAIL       = 2014;  //全局邮件         mailsvr->statussvr->hallsvr
+SS_NTF_WORLD_CHAT            = 2015;  //世界聊天         hallsvr->statussvr->hallsvr
+SS_NTF_KICK_OFF_PLAYER       = 2016;  //状态服通知大厅服踢人下线      statussvr->hallsvr
+SS_NTF_FROZEN_ACCOUNT        = 2017;  //封号             gmsvr->statussvr->hallsvr
+SS_NTF_NOTICE                = 2018;
+SS_NTF_REMOVE_NOTICE         = 2019;
+SS_NTF_UNFROZEN_ACCOUNT      = 2020;  //解封账号         gmsvr->statussvr->hallsvr
+SS_NTF_UPDATE_NUM_RANK       = 2021;  //通知rankserver更新排行榜数据 hallsvr->ranksvr
+SS_NTF_HALL_SERVER_CLOSING   = 2022;  //大厅服正在关闭中
+SS_NTF_PVP_END               = 2023;
+SS_NTF_MARQUEE               = 2024;  //跑马灯           gmsvr->statussvr->hallsvr
+SS_NTF_REMOVE_MARQUEE        = 2025;  //删除跑马灯       gmsvr->statussvr->hallsvr
+}
+/*************************消息ID END********************************/
+
+
+/*************************外包体定义 BEG*****************************/
+//消息SSHead
+message SSHead {
+SSMsgID          MsgId     = 1;          //消息Id
+uint32           BodyLen   = 2;          //Body长度
+repeated string  Ids       = 3;          //要通知的用户id
+uint64           Extra     = 4;
+}
+
+//消息SSReqBody
+message SSReqBody {
+SSReqPvp               Pvp               = 1;    //pvp匹配
+SSReqPvpApply          PvpApply          = 2;    //pvp对战申请
+SSReqPvpMatchCancel    PvpMatchCancel    = 3;    //pvp匹配取消
+SSReqPvpJoin           PvpJoin           = 4;    //pvp对战加入
+SSReqPlayersStatus     PlayersStatus     = 5;   //获取玩家状态
+SSReqPlayersBaseInfo   PlayersBaseInfo   = 6;   //获取玩家基础信息
+SSReqPlayerDetailInfo  PlayerDetailInfo  = 7;   //玩家详细信息
+SSReqSendMail          SendMail          = 8;   //发送邮件
+SSReqGetMailData       GetMailData       = 9;   //获取邮件数据
+SSReqGetNumRank        GetNumRank        = 10;   //排行榜
+SSReqLogin             Login             = 11;   //登陆
+SSReqDbOp              DbOp              = 12;
+}
+
+
+//消息SSRspBody
+message SSRspBody {
+RESULT               ErrCode        = 1;    //错误码  0: 成功  非0：失败
+string               ErrMsg         = 2;    //错误提示  ErrCode非0时有意义
+
+//下面是正式包体
+SSRspPvpApply          PvpApply          = 11;   //pvp对战申请
+SSRspFutureCallBack    FutureCB          = 13;   //future回调事件
+SSRspPvp               Pvp               = 14;
+SSRspPvpMatchCancel    PvpMatchCancel    = 15;
+}
+
+//消息SSNtfBody
+message SSNtfBody {
+SSNtfServerName          ServerName         = 1;    //通告服务器名
+SSNtfPlayersStatus       PlayersStatus      = 2;   //玩家状态
+SSNTFPlayerMessageWrap   PlayerMessageWrap  = 3;
+SSNTFNewConnectPlayer    NewConnectPlayer   = 4;
+SSNTFDisConnectPlayer    DisConnectPlayer   = 5;
+SSNtfHallStatus          HallStatus         = 6;
+SSNtfPvpStatus           PvpStatus          = 7;   //pvp状态通知
+SSNtfPvpEnd              PvpEnd             = 8;    //pvp结束
+SSNtfPvpMatchCancel      PvpMatchCancel     = 9;
+SSNtfPvpMatch            PvpMatch           = 10;
+SSNtfPvp                 Pvp                = 11;
+SSNtfPay                 Pay                = 12;
+SSNtfKickOffPlayer       KickOffPlayer      = 13;   //状态服通知大厅服踢人下线
+SSNtfNewMail             NewMail            = 14;   //新邮件
+SSNtfFrozenAccount       FrozenAccount      = 15;   //封号
+SSNtfUnFrozenAccount     UnFrozenAccount    = 16;   //解封账号
+SSNtfNotice              Notice             = 17;
+SSNtfRemoveNotice        RemoveNotice       = 18;
+SSNtfUpdateNumRank       UpdateNumRank      = 19;   //通知rankserver更新排行榜数据
+SSNtfWorldChat           WorldChat          = 20;   //世界聊天
+SSNtfHallServerClosing   HallServerClosing  = 21;
+SSNtfPvpServerId         PvpServerId        = 22;
+SSNtfPlayerDisconnectPvp PlayerDisconnectPvp= 23;
+SSNtfMarquee             Marquee            = 24;   //跑马灯
+SSNtfRemoveMarquee       RemoveMarquee      = 25;   //删除跑马灯
+}
+/*************************外包体定义 END***********************************/
+
+
+/*************************具体包体REQ&RSP BEG******************************/
+//pvpMatchReq
+message SSReqPvp {
+PVPMODE              Mode        = 1;    //pvp模式
+PvpPlayerData        PlayerData  = 2;    //pvp玩家信息
+string               ApkVersion  = 3;    //客户端当前版本号
+uint64               Seq         = 4;
+}
+
+message SSRspPvp{
+uint64               Seq         = 1;              
+}
+
+//pvpApplyReq
+message SSReqPvpApply {
+PVPMODE                Mode        = 1;    //pvp模式
+uint32                 MatchId     = 2;    //匹配Id
+uint32                 MapId       = 3;    //mapId
+MAPTYPE                MapType     = 4;    //mapType
+repeated PvpPlayerData Players     = 5;    //pvp玩家信息 包含自己，且玩家索引在单局游戏内固定
+uint32                 MatchTime   = 6;    //匹配消耗的时间
+}
+//pvpApplyRsp
+message SSRspPvpApply {
+PVPMODE              Mode           = 1;    //pvp模式
+uint32               MatchId        = 2;    //匹配Id
+uint32               PvpId          = 3;    //pvpId
+string               PvpTCPSvrAddr  = 4;    //pvpTCP服地址  格式：（域名/IP:端口）
+}
+
+//PvpMatchCancle
+message SSReqPvpMatchCancel {
+string                 Id          = 1;    //Id
+PVPMODE                Mode        = 2;    //模式
+string                 ApkVersion  = 3;    //apk版本号
+bool                   OffLine     = 4;    //是否下线取消
+uint64                 Seq         = 5;
+}
+
+message SSRspPvpMatchCancel{
+uint64               Seq         = 1;  
+}
+
+//pvpJoinReq
+message SSReqPvpJoin {
+PVPMODE                Mode        = 1;    //pvp模式
+uint32                 PvpId       = 2;    //pvpId
+PvpPlayerData          Player      = 3;    //pvp玩家信息 包含自己，且玩家索引在单局游戏内固定
+}
+
+//pvpJoinRsp
+message SSRspPvpJoin {
+PVPMODE              Mode           = 1;    //pvp模式
+uint32               PvpId          = 2;    //pvpId
+string               Id             = 3;    //账号Id
+string               PvpTCPSvrAddr  = 4;    //pvpTCP服地址  格式：（域名/IP:端口）
+string               PvpUDPSvrAddr  = 5;    //pvpUDP服地址  格式：（域名/IP:端口）
+}
+
+//BaseInfo
+message SSReqPlayersBaseInfo {
+uint64               PfId           = 1;    //
+repeated string      Ids            = 2;    //id列表
+}
+
+//DetailInfo
+message SSReqPlayerDetailInfo {
+uint64               PfId           = 1;    //
+string               IdUsrName      = 2;    //id或名字
+}
+
+//futureCallBack事件
+message SSRspFutureCallBack {       
+uint64                  PfId                        = 1; //promise id
+PFDTPlayersStatus       RspPlayersStatus            = 3; //请求玩家状态信息
+PFDTPlayersBaseInfo     RspPlayersBaseInfo          = 4; //玩家基础信息
+PFDTPlayerDetailInfo    RspPlayerDetailInfo         = 5; //玩家详细信息
+PFDTSendMail            RspSendMail                 = 10;//发送邮件
+PFDTGetMailData         RspGetMailData              = 11;//获取邮件数据
+PFDTGetNumRank          RspGetNumRank               = 12;
+PFDTLogin               RspLogin                    = 13;
+PFDTDbOp                RspDbOp                     = 14;
+}
+
+message PFDTPlayersStatus {
+repeated CSDTPlayerStatusInfo Info   = 1;    //信息列表
+}
+
+message PFDTPlayersBaseInfo {
+repeated CSDTPlayerBaseInfo   Info   = 1;    //基础信息列表
+}
+
+message PFDTPlayerDetailInfo {
+CSDTPlayerDetailInfo   Info   = 1;    //详细信息
+}
+
+message PFDTGetNumRank{
+string Id                       = 1; //玩家Id
+RANKTYPE Type                   = 2; //排行类型
+int32 Rank                      = 3; //玩家排名
+uint32 RankThreshold            = 4; //排名阀值
+uint32 RankTopCount             = 5; //前几名的数目
+repeated CSDTNumRankItem items  = 6; //前几名的玩家
+}
+
+message PFDTSendMail{
+uint32  Id        = 1; //邮件Id
+bool    IsSuccess = 2; //是否发送成功
+string  ErrorDesc = 3; //错误描述
+}
+
+message PFDTLogin{
+bool                Succeed     = 1;
+map<string,string>  Datas       = 2;
+}
+
+message RspData{
+int64               Value       = 1;
+repeated string     Datas       = 2;
+}
+
+message PFDTDbOp{
+string              Error       = 1;
+RspData             RspData     = 2;
+}
+
+//playerStatus
+message SSReqPlayersStatus {
+uint64               PfId           = 1;    //
+repeated string      Ids            = 2;    //id列表  
+}
+
+message SSDTMailAward{
+ITEMTYPE Type       = 1; //物品类型
+uint32   Id         = 2; //物品Id
+uint32   Count      = 3; //数量
+}
+
+message SSReqSendMail{
+uint64   PfId                  = 1; //promise id
+string   Title                 = 2; //标题
+string   Content               = 3; //正文
+int32    ChannelType           = 4; //渠道类型 0为所有渠道
+string   Version               = 5; //版本号
+repeated string IdList         = 6; //玩家Id列表
+repeated SSDTMailAward  Awards = 7; //附件奖励
+}
+
+message SSDTMailData{
+uint32 Id             = 1; //邮件Id
+string Title          = 2; //邮件标题
+string Content        = 3; //邮件内容
+repeated Award Awards = 4; //邮件奖励
+int64  Ts             = 5; //邮件时间
+}
+
+message PFDTGetMailData{
+map<uint32,SSDTMailData> Datas = 1;
+}
+
+message SSReqGetMailData{
+uint64   PfId                   = 1; //promise id   
+map<uint32,uint32> Ids          = 2; //邮件Id列表
+CHANELTYPE    PlayerChannel     = 3; //玩家渠道
+}
+
+message SSReqGetNumRank{
+string Id       = 1;
+RANKTYPE Type   = 2; //排行榜类型
+uint64 PfId     = 3;
+}
+
+message SSReqLogin{
+CHANELTYPE           ChannelType  = 1;   
+string               DeviceId     = 2;   //设备Id
+string               Id           = 3;   //id
+string               SessionId    = 4;   //用于客户端游戏中重连服务器
+map<string,string>   AuthSDKCode  = 5;   //验证SDK code
+uint64               PfId         = 6;
+}
+
+message DbInsertData {
+bytes  Data    = 1;
+}
+
+message DbOp {
+int32                       OpType          = 1;
+uint64                      PFId            = 2;
+string                      CollectionName  = 3;
+bytes                       QueryContent    = 4;
+bytes                       SelectContent   = 5;
+bytes                       UpdateContent   = 6;
+bytes                       UnsetContent    = 7;
+bytes                       PushContent     = 8;
+bytes                       GroupContent    = 9;
+repeated DbInsertData       InsertDatas     = 10;
+repeated string             Sortfields      = 11;
+int32                       Limit           = 12;
+int32                       Skip            = 13;
+bool                        ReturnOld       = 14;
+string                      Err             = 15;
+bool                        UnReturnError   = 16;
+bool                        KeepOrder       = 17;
+int32                       CachePlayerOpType=18;
+}
+
+message SSReqDbOp{
+uint64   PfId                   = 1; //promise id   
+DbOp            Op              = 2;        
+}
+
+/*************************具体包体REQ&RSP END******************************/
+
+
+/*************************具体包体NTF BEG**********************************/
+
+//ServerName
+message SSNtfServerName{
+string ServerName = 1; //服务器名字
+}
+
+//playersStatus
+message SSNtfPlayersStatus {
+repeated CSDTPlayerStatusInfo     players  = 1;    //玩家状态 
+}
+
+message SSNtfHallStatus{
+uint32               CurPlayerNum   = 1;    //当前玩家人数
+uint32               ServerId       = 2;
+}
+
+message SSNtfPvpStatus{
+uint32               CurPlayerNum   = 1;    //当前玩家人数
+uint32               ServerId       = 2;
+}
+
+//pvp匹配成功Ntf
+message SSNtfPvp {
+RESULT               Result         = 1;    //pvp匹配结果         
+uint32               PvpId          = 2;    //pvpId   
+string               PvpTCPSvrAddr  = 3;    //pvpTCP服地址  格式：（域名/IP:端口）
+uint32               TeamId         = 4;    //只针对队伍
+}
+
+message SSNTFPlayerMessageWrap{
+uint64                      Fd          = 1;
+uint32                      MsgId       = 2;
+bytes                       Data        = 3;
+}
+
+message SSNTFNewConnectPlayer{
+uint64                      Fd          = 1;
+}
+
+message SSNTFDisConnectPlayer{
+uint64                      Fd          = 1;
+}
+
+message SSNtfPvpEnd {       
+PVPMODE              Mode           = 1;    //pvp mode
+uint32               PvpId          = 2;    //pvpId       
+uint32               MapId          = 3;    //mapId  
+MAPTYPE              MapType        = 4;    //mapType
+CSDTPvpCampResult    CampResult     = 5;    //阵营结果
+CSDTPvpStat          PvpStat        = 6;    //统计
+uint32               Duration       = 7;    //用时
+int64                CreateTime     = 8;    //开启时间
+bool                 Async          = 9;    //是否发生不同步
+int64                EndTime        =10;    //游戏结束时间
+}
+
+//pvp匹配取消通知
+message SSNtfPvpMatchCancel {
+uint32               TeamId         = 1;    //teamId   
+string               CancelId       = 2;    //取消玩家id 
+}
+
+//PvpMatch
+message SSNtfPvpMatch {
+PVPMODE              Mode        = 1;    //pvp模式
+uint32               ExceptSecs  = 2;    //预期匹配时间 单位：秒
+string               Captain     = 3;    //队长  
+}
+
+message SSNtfPay{
+string PlayerId = 1; //玩家id
+string OrderId  = 2; //订单Id    
+uint32 GoodsId  = 3; //商品Id
+uint32 Rmb      = 4; //充值人民币
+}
+
+//状态服通知大厅服踢人下线
+message SSNtfKickOffPlayer{
+string  Id  = 1; //玩家Id    
+}
+
+message SSNtfFrozenAccount{
+FROZEN_TYPE     Type    = 1;
+repeated string Ids     = 2; //id列表
+int64           Time    = 3; //封号截止时间
+}
+
+message SSNtfUnFrozenAccount{
+FROZEN_TYPE     Type    = 1;
+repeated string Ids     = 2; //id列表
+}
+
+message SSNtfNotice{
+int64	    Id          = 1;
+NOTICETYPE  Type        = 2;
+string      Title       = 3;
+string      Content     = 4;
+CHANELTYPE  ChannelType = 5;
+string      Label       = 6;
+uint32      LabelType   = 7; 
+}
+
+message SSNtfRemoveNotice{
+int64	Id          = 1;      
+}
+
+message SSNtfNewMail{
+uint32 Id               = 1;
+string Title            = 2;    //标题
+string Content          = 3;    //正文
+repeated Award Awards   = 4;    //奖励
+int64  Ts               = 5;    //邮件发送时间
+int32  ChannelType      = 6;    //渠道类型
+string ApkVersion       = 7;    //客户端当前版本号
+}
+
+message SSNtfUpdateNumRank{
+string Id           = 1; //玩家id
+RANKTYPE Type       = 2; //排行类型
+uint32 Number       = 3; //值
+uint64 Ts           = 4; //更新时间
+bool   NeedRemove   = 5; //是否删除
+}
+
+message SSNtfWorldChat{
+CSDTWorldChat       WorldChat   = 1;
+}
+
+message SSNtfHallServerClosing{
+
+}
+
+message SSNtfPvpServerId{
+uint32  ServerId        = 1;
+}
+
+message SSNtfPlayerDisconnectPvp{
+uint64  Fd              = 1;
+uint32  ServerId        = 2;
+}
+
+message SSNtfMarquee{
+int64	    Id          = 1;
+CHANELTYPE  ChannelType = 2;
+string      Version     = 3;
+string	    Content     = 4;
+int64	    StartTime   = 5;
+int64	    EndTime     = 6;
+int64	    Frequency   = 7;
+}
+
+message SSNtfRemoveMarquee{
+int64	Id          = 1;
+}
+
+/*************************具体包体NTF END**********************************/
+
+
+
+/*************************服务器内部自行使用的**********************************/
+
+message RankNumPersistence {
+string	 Id      = 1;    //玩家id
+RANKTYPE Type    = 2;    //类型
+uint32	 Number  = 3;    //数值
+uint64	 Ts      = 4;    //时间戳
+}
+
+message RankPersistenceList {
+repeated bytes data = 1;
+}
+
+/*************************服务器内部自行使用的**********************************/

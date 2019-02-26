@@ -1,0 +1,560 @@
+syntax = "proto3";
+package msg;
+
+import "common.proto";
+
+
+//协议消息说明
+//CSReq消息结构：
+//HeadLen(1字节) + CSHead（protocbuf序列化） + CSReqBody（protocbuf序列化）
+//CSRsp消息结构：
+//HeadLen(1字节) + CSHead（protocbuf序列化） + CSRspBody（protocbuf序列化）
+//CSNtf消息结构：
+//HeadLen(1字节) + CSHead（protocbuf序列化） + CSNtfBody（protocbuf序列化）
+
+
+/*************************消息ID BEG********************************/
+//消息ID
+enum CSMsgID {
+//CSReq消息ID范围为 1-999
+CS_REQ_BEGIN                = 0;    //保留
+REQ_HEART                   = 1;    //心跳包
+REQ_LOGIN                   = 2;    //登陆请求
+REQ_VERSION_CHECK           = 3;   //版本检查
+REQ_RESOURCE_VERSION_CHECK  = 4;   //资源版本检测
+REQ_APPLY_HALL_SERVER       = 5;
+REQ_GET_NUM_RANK            = 6;
+REQ_WORLD_CHAT              = 7;
+REQ_PLAYERS_BASE_INFO       = 8;   //玩家基础信息
+REQ_PLAYER_DETAIL_INFO      = 9;   //玩家详细信息
+REQ_READ_MAIL               = 10;  //读邮件
+REQ_GET_MAIL_AWARD          = 11;  //领取邮件奖励
+REQ_BUY_EGG                 = 12;  //购买扭蛋
+REQ_USERNAME_SET            = 13;  //设置用户名
+REQ_USERNAME_RANDOM         = 14;  //随机用户名
+REQ_HEADPIC_SET             = 15;  //设置头像
+REQ_PVP                     = 16;  //pvp请求
+REQ_PVP_MATCH_CANCEL        = 17;  //取消匹配
+REQ_DRESS_CHESS_PLAYER      = 18;  //装备道具
+REQ_DRESS_SCENE             = 19;  //装备道具
+REQ_PVP_LOGIN               = 20;  //pvp服登陆请求
+REQ_PVP_SEQS                = 21;
+REQ_PVP_PLAYER_READY        = 22;
+REQ_PVP_CLIENT_READY        = 23;
+REQ_REP_PVP_ACTION          = 24;
+REQ_PVP_END                 = 25;
+REQ_PLAYER_FINISH           = 26;
+REQ_PLAYER_QUIT             = 27;
+REQ_SELL_ITEM               = 28;  //出售物品
+
+//CSRsp消息ID范围为 1001-1999
+CS_RSP_BEGIN                = 1000;   //保留
+RSP_HEART                   = 1001;
+RSP_LOGIN                   = 1002;   //登陆请求
+RSP_VERSION_CHECK           = 1003;   //版本检查
+RSP_RESOURCE_VERSION_CHECK  = 1004;   //资源版本检测
+RSP_APPLY_HALL_SERVER       = 1005;
+RSP_GET_NUM_RANK            = 1006;
+RSP_WORLD_CHAT              = 1007;
+RSP_PLAYERS_BASE_INFO       = 1008;   //玩家基础信息
+RSP_PLAYER_DETAIL_INFO      = 1009;   //玩家详细信息
+RSP_READ_MAIL               = 1010;   //读邮件
+RSP_GET_MAIL_AWARD          = 1011;   //领取邮件奖励
+RSP_BUY_EGG                 = 1012;   //购买扭蛋
+RSP_USERNAME_SET            = 1013;   //设置用户名
+RSP_USERNAME_RANDOM         = 1014;   //随机用户名
+RSP_HEADPIC_SET             = 1015;   //设置头像
+RSP_PVP                     = 1016;   //pvp请求
+RSP_PVP_MATCH_CANCEL        = 1017;   //取消匹配
+RSP_DRESS_CHESS_PLAYER      = 1018;  //装备道具
+RSP_DRESS_SCENE             = 1019;  //装备道具
+RSP_PVP_LOGIN               = 1020;   //pvp服登陆请求
+RSP_PVP_SEQS                = 1021;
+RSP_PVP_PLAYER_READY        = 1022;
+RSP_PVP_CLIENT_READY        = 1023;
+RSP_REP_PVP_ACTION          = 1024;
+RSP_PVP_END                 = 1025;
+RSP_PLAYER_FINISH           = 1026;
+RSP_PLAYER_QUIT             = 1027;
+RSP_SELL_ITEM               = 1028;  //出售物品
+
+//CSNtf消息ID范围为 2001-2999
+CS_NTF_BEGIN            = 2000;    //保留
+NTF_KICKOFF             = 2001;    //踢线
+NTF_PLAYER_WAIT         = 2002;
+NTF_PASS_DAY            = 2003;    //跨天通知
+NTF_PASS_WEEK           = 2004;
+NTF_PASS_MONTH          = 2005;
+NTF_WORLD_CHAT          = 2006;
+NTF_MAILS               = 2007;
+NTF_HEAD_PIC            = 2008;    //头像变更通告
+NTF_PVP_MATCH           = 2009;
+NTF_PVP_MATCH_CANCEL    = 2010;
+NTF_PVP                 = 2011;
+NTF_PVP_STATUS          = 2012;
+NTF_PVP_PLAYER_READY    = 2013;
+NTF_PVP_BEGIN           = 2014;
+NTF_PVP_SEQ             = 2015;
+NTF_PLAYER_FINISH       = 2016;    //
+NTF_PVP_END             = 2017;
+NTF_MARQUEE             = 2018;    //跑马灯通告
+NTF_REMOVE_MARQUEE      = 2019;    //删除跑马灯
+}
+/*************************消息ID END********************************/
+
+
+/*************************外包体定义 BEG*****************************/
+//消息CSHead
+message CSHead {
+CSMsgID   MsgId     = 1;          //消息Id
+uint32    BodyLen   = 2;          //Body长度
+bool      Compress  = 3;          //是否压缩
+uint32    ServerId  = 4;          //服务器id
+}
+
+//消息CSReqBody
+message CSReqBody {
+uint64                 Seq                                  = 1;
+CSReqHeart             Heart                                = 2;
+CSReqLogin             Login                                = 3; //登陆
+CSReqVersionCheck      VersionCheck                         = 4; //
+CSReqResourceVersionCheck ResourceVersionCheck              = 5; //资源版本检测
+CSReqApplyHallServer   ApplyHallServer                      = 6;
+CSReqGetNumRank        GetNumRank                           = 39;//获取排行榜数据
+CSReqWorldChat         WorldChat                            = 56;//世界聊天
+CSReqPlayersBaseInfo   PlayersBaseInfo                      = 18;//玩家基础信息
+CSReqPlayerDetailInfo  PlayerDetailInfo                     = 19;//玩家详细信息
+CSReqReadMail          ReadMail                             = 42;//读邮件
+CSReqGetMailAward      GetMailAward                         = 43;//领取邮件奖励
+CSReqBuyEgg            BuyEgg                               = 20;//购买扭蛋
+CSReqUserNameSet       UserNameSet                          = 21;//用户名设置
+CSReqUserNameRandom    UserNameRandom                       = 22;//随机用户名
+CSReqHeadPicSet        HeadPicSet                           = 23;//设置头像
+CSReqPvp               Pvp                                  = 24;//pvp
+CSReqDressChessPlayer  DressChessPlayer                     = 25;
+CSReqDressScene        DressScene                           = 26;
+CSReqPvpLogin          PvpLogin                             = 27;//pvp服登陆
+CSReqPvpSeqs           PvpSeqs                              = 28;//pvp帧数据请求
+CSReqRepPvpAction      RepPvpAction                         = 29;//上报战斗操作
+CSReqPvpEnd            PvpEnd                               = 30;//pvp结束请求
+CSReqPlayerFinish      PlayerFinish                         = 31;//大逃杀死亡
+CSReqPlayerQuit        PlayerQuit                           = 32;
+CSReqSellItem          SellItem                             = 33;//出售物品
+}
+
+//消息CSRspBody
+message CSRspBody {
+uint64                 Seq                                  = 1;
+RESULT                 ErrCode                              = 2; //错误码  0: 成功  非0：失败
+string                 ErrMsg                               = 3; //错误提示  ErrCode非0时有意义
+//下面是正式包体
+CSRspHeart             Heart                                = 4;
+CSRspLogin             Login                                = 5; //登陆
+CSRspVersionCheck      VersionCheck                         = 6; //
+CSRspResourceVersionCheck ResourceVersionCheck              = 7; //资源版本检测
+CSRspApplyHallServer   ApplyHallServer                      = 8;
+CSRspGetNumRank        GetNumRank                           = 39;//获取排行榜数据
+CSRspWorldChat         WorldChat                            = 56;//世界聊天
+CSRspPlayersBaseInfo   PlayersBaseInfo                      = 18;//玩家基础信息
+CSRspPlayerDetailInfo  PlayerDetailInfo                     = 19;//玩家详细信息
+CSRspReadMail          ReadMail                             = 42;//读邮件
+CSRspGetMailAward      GetMailAward                         = 43;//领取邮件奖励
+CSRspBuyEgg            BuyEgg                               = 20;//购买扭蛋        
+CSRspUserNameSet       UserNameSet                          = 21;//用户名设置
+CSRspUserNameRandom    UserNameRandom                       = 22;//随机用户名
+CSRspHeadPicSet        HeadPicSet                           = 23;//设置头像
+CSRspDressChessPlayer  DressChessPlayer                     = 24;
+CSRspDressScene        DressScene                           = 25;
+CSRspPvpLogin          PvpLogin                             = 26;//pvp服登陆
+CSRspPvpSeqs           PvpSeqs                              = 27;//pvp帧数据请求
+CSRspRepPvpAction      RepPvpAction                         = 28;//上报战斗操作
+CSRspPvpEnd            PvpEnd                               = 29;
+CSRspPlayerFinish      PlayerFinish                         = 30;//大逃杀死亡
+CSRspPlayerQuit        PlayerQuit                           = 31;
+CSRspSellItem          SellItem                             = 32;//出售物品
+}
+
+//消息CSNtfBody
+message CSNtfBody {
+CSNtfKickOff           KickOff           = 1;  //踢线
+CSNtfWait              NtfWait           = 2;
+CSNtfPassDayBody       PassDay           = 3;
+CSNtfPassWeekBody      PassWeek          = 4;  //跨周通告
+CSNtfPassMonthBody     PassMonth         = 5;
+CSNtfWorldChat         WorldChat         = 6;
+repeated CSDTMail      Mails             = 7; //邮件列表
+CSNtfHeadPic           HeadPic           = 8; //头像变更通告
+CSNtfPvpMatch          PvpMatch          = 9; //pvp匹配
+CSNtfPvp               Pvp               = 10;//pvp匹配
+CSNtfPvpMatchCancel    PvpMatchCancel    = 11;
+CSNtfPvpStatus         PvpStatus         = 12;
+CSNtfPvpPlayerReady    NtfPvpPlayerReady = 13; //PVP玩家已准备好
+CSNtfPvpBegin          PvpBegin          = 14;  //pvp开始
+CSNtfPvpSeq            PvpSeq            = 15;
+CSNtfPlayerFinish      PlayerFinish      = 16; //
+CSNtfPvpEnd            PvpEnd            = 17;  //pvp结束
+CSNtfMarquee           Marquee           = 18; //跑马灯通告
+CSNtfRemoveMarquee     RemoveMarquee     = 19; //删除跑马灯
+}
+
+/*************************外包体定义 END***********************************/
+
+
+/*************************具体包体REQ&RSP BEG******************************/
+//登陆Req
+message CSReqLogin {
+string               DeviceId     = 1;   //设备Id
+PLATFORMTYPE         PlatformType = 2;   //平台类型
+string               OsVersion    = 3;   //操作系统版本
+string               DeviceType   = 4;   //设备型号
+NETTYPE              NetType      = 5;   //网络类型
+LOGINTYPE            LoginType    = 6;   //登陆类型
+string               Id           = 7;   //id
+string               LySdkDeviceId= 8;   //龙渊数据采集SDK中的设备Id
+string               ChannelId    = 9;   //渠道Id(字符串)
+string               PackageId    = 10;  //渠道包Id
+string               ApkVersion   = 11;  //应用包版本
+string               Resolution   = 12;  //运营商
+CHANELTYPE           ChannelType  = 13;  //渠道类型
+map<string,string>   AuthSDKCode  = 14;  //验证SDK code
+string               SessionId    = 15;  //用于客户端游戏中重连服务器
+string               ChannelUserId= 16;  //渠道用户Id
+string               ResourceVersion = 17;//资源版本号
+CHANELTYPE           PayChannel   = 18;  //支付渠道
+string               ActiveCode   = 19;  //激活码      
+}
+
+//登陆Rsp
+message CSRspLogin {
+string                      Id                          = 1;    //用户id
+string                      UsrName                     = 2;    //用户名
+string                      SessionId                   = 3;    //用于客户端游戏中重连服务器
+CSDTBase                    Base                        = 4;    //玩家基础信息
+CSDTStat                    Stat                        = 5;    //统计信息
+repeated    CSDTItem        Items                       = 6;    //玩家拥有道具
+CSDTNoticeInfo              Notice                      = 7;    //公告内容
+map<string, string>         MapLoginDatas               = 8;    //登录成功后获取的渠道相关数据
+int64                       ServerTime                  = 9;    //服务器时间
+string                      ServiceAppId                = 10;   //客服 Appid
+string                      ServiceKey                  = 11;   //客服 Key
+int32                       LocalDistanceToUTC          = 12;   //当地时间与UTC时间相差秒数
+CSDTExtra                   Extra                       = 13;   //额外信息
+}
+
+message CSDTBase {
+uint32                  HeadPic           = 1;
+uint32                  Scene             = 2;
+uint32                  ChessPlayer       = 3;
+}
+
+message CSDTExtra {
+uint32               SetNameCount    = 1; //修改名字的次数
+}
+
+message CSReqApplyHallServer{
+}
+
+message CSRspApplyHallServer{
+bytes               Key                  = 1;    //秘钥
+uint32              ServerId             = 2;    //服务器id
+}
+
+//heart req
+message CSReqHeart {
+uint64               time        = 1;    //时间
+}
+
+message CSRspHeart {
+uint64               time           = 1;    //时间
+uint64               NowServerTime  = 2;    //服务器当前时间
+}
+
+message CSReqVersionCheck{
+PLATFORMTYPE        PlatformType     = 1;    //平台类型
+string              ApkVersion       = 2;    //客户端当前版本号
+string              ChannelId        = 3;    //渠道Id
+}
+
+message CSRspVersionCheck{
+VERSIONUPGRADETYPE  UpgradeType      = 1;    //升级方式
+string              UpgradeAddress   = 2;    //升级地址
+string              NewApkVersion    = 3;    //最新apk版本号
+string              ApkCdnUrl        = 4;    //apk cdn资源路径
+}
+
+message CSReqResourceVersionCheck{
+string ApkVersion = 1; //Apk版本号
+}
+
+message CSRspResourceVersionCheck{
+string ApkVersion       = 1;    //Apk版本号
+string ResourceVersion  = 2;    //资源版本号
+string Cdn              = 3;    //Cdn链接地址
+string SlaveCdn         = 4;    //备Cdn链接地址
+}
+
+message CSReqGetNumRank {
+RANKTYPE Type                     = 1;    //排行榜类型
+}
+
+message CSRspGetNumRank {
+RANKTYPE Type                     = 1;    //排行榜类型
+int32    Rank                     = 2;    //玩家的排名
+repeated CSDTNumRankItem items    = 3;    //前几名的玩家
+uint32   RankThreshold            = 4;    //排名阀值
+uint32   RankTopCount             = 5;    //前几名的数目
+}
+
+message CSReqWorldChat{
+string              Content = 1; //聊天内容 
+}
+
+message CSRspWorldChat{
+}
+
+//relationBaseInfo
+message CSReqPlayersBaseInfo {
+repeated string               Ids    = 1;    //id列表
+}
+
+message CSRspPlayersBaseInfo {
+repeated CSDTPlayerBaseInfo   Info   = 1;    //基础信息列表
+}
+
+//player DetailInfo
+message CSReqPlayerDetailInfo {
+string                        IdUsrName = 1; //id或用户名
+}
+
+message CSRspPlayerDetailInfo {
+CSDTPlayerBaseInfo            Base   = 1;    //基础信息
+CSDTStat                      Stat   = 2;    //统计信息
+}
+
+message CSReqReadMail{
+uint32 Id               = 1;
+}
+
+message CSRspReadMail{
+uint32 Id               = 1;
+}
+
+message CSReqGetMailAward{
+uint32 Id               = 1;
+}
+
+message CSRspGetMailAward{
+uint32 Id               = 1;
+repeated Award Awards   = 2;    //奖励
+}
+
+message CSReqBuyEgg {
+uint32          Count           = 1;    //购买数量
+}
+
+message CSRspBuyEgg {
+repeated Consume Consumes       = 1;    //消耗
+repeated Award   Awards         = 2;    //奖励
+}
+
+message CSReqUserNameSet {
+string               UserName        = 1;    //用户名
+}
+
+message CSRspUserNameSet {
+uint32               Count           = 1;    //修改名字的次数
+repeated Consume     Consumes        = 2;    //消耗列表
+}
+
+message CSReqUserNameRandom {
+string               UserName        = 1;    //用户名
+}
+message CSRspUserNameRandom {
+string               UserName        = 1;    //用户名
+}
+
+message CSReqHeadPicSet {
+uint32                HeadPic       = 1;    //头像
+}
+
+message CSRspHeadPicSet {
+}
+
+//Pvp req
+message CSReqPvp {
+PVPMODE              Mode        = 1;    //pvp模式
+}
+
+message CSReqDressChessPlayer {
+uint32               Id          = 1;   //道具Id
+}
+
+message CSRspDressChessPlayer {
+}
+
+message CSReqDressScene {
+uint32               Id          = 1;   //道具Id
+}
+
+message CSRspDressScene {
+}
+
+//Pvp login req
+message CSReqPvpLogin {
+uint32               PvpId        = 1;    //pvpId
+string               Id           = 2;    //玩家id
+//repeated CSDTSetData Set          = 3;    //本地设置数据    
+}
+
+message CSRspPvpLogin {
+uint32                 PvpId             = 1;    //pvpId
+uint32                 MaxGameSecs       = 2;    //最大游戏时间 单位：秒
+uint32                 SeqUpdate         = 3;    //服务器帧同步频率 单位：毫秒
+repeated PvpPlayerData Players           = 4;    //pvp玩家信息 包含自己，且玩家索引在单局游戏内固定
+bytes                  TcpKey            = 5;    //tcp秘钥
+uint32                 CurSeq            = 6;    //当前最新帧序号
+uint32                 LoadingUILeftTime = 7;    //loadingUI剩余等待时间 单位：秒
+repeated string        ReadyPlayers      = 8;    //loadingUI界面中已经ready玩家
+int64                  CreateTime        = 9;    //pvp创建时间
+int32                  LocalDistanceToUTC= 10;   //当地时间与UTC时间相差秒数
+}
+
+message CSReqPvpSeqs {
+uint32               BeginSeqIndex  = 1;    //请求的帧开始序号
+}
+
+message CSRspPvpSeqs {
+uint32               BeginSeqIndex  = 1;    //帧开始序号
+repeated CSDTPvpSeq  Seqs           = 2;    //帧数据
+}
+
+message CSReqRepPvpAction{
+SeqData              Data         = 1;    //行为数据
+}
+
+message CSRspRepPvpAction{
+    
+}
+
+//Pvp end req
+message CSReqPvpEnd {
+uint32                     PvpId        = 1;    //pvpId
+CSDTPvpCampResult          CampResult   = 2;    //阵营数据统计
+CSDTPvpStat                Stat         = 3;    //pvp统计
+}
+
+message CSRspPvpEnd {
+}
+
+message CSReqPlayerFinish{
+uint32     PvpId            = 1; //pvp id
+string     ReporterId       = 2; //上报者
+CSDTPlayerFinish PlayerFinish = 3; //大逃杀数据
+}
+
+message CSRspPlayerFinish{
+}
+
+message CSReqPlayerQuit{
+
+}
+
+message CSRspPlayerQuit{
+    
+}
+
+//出售物品
+message CSReqSellItem {
+repeated CSDTItem    Items      = 1;  //出售的道具
+}
+
+message CSRspSellItem {
+repeated Award      Awards        = 1;  //奖励
+repeated Consume    Consumes      = 2;  //消耗
+}
+/*************************具体包体NTF BEG**********************************/
+
+message CSNtfKickOff {
+REASON               Reason        = 1;    //踢线原因
+}
+
+//玩家排队通知
+message CSNtfWait{
+uint32 Count = 1;   //玩家前面有多少人排队(包含自己)
+}
+
+message CSNtfPassDayBody{
+}
+
+message CSNtfPassWeekBody{
+}
+
+message CSNtfPassMonthBody{
+
+}
+
+message CSNtfWorldChat{
+CSDTWorldChat       WorldChat   = 1;   
+}
+
+message CSNtfHeadPic{
+uint32 Id   = 1; //头像id
+}
+
+//team match ntf
+message CSNtfPvpMatch {
+PVPMODE              Mode        = 1;    //pvp模式
+uint32               ExceptSecs  = 2;    //预期匹配时间 单位：秒
+string               Captain     = 3;    //队长
+}
+
+message CSNtfPvpMatchCancel{
+string  Id = 1; //取消玩家id
+}
+
+//pvp匹配Ntf
+message CSNtfPvp {
+RESULT               Result         = 1;    //pvp匹配结果       
+uint32               PvpId          = 2;    //pvpId     
+string               PvpTCPSvrAddr  = 3;    //pvpTCP服地址  格式：（域名/IP:端口）
+}
+
+message CSNtfPvpStatus {
+}
+
+message CSNtfPvpPlayerReady{
+string               Id             = 1;    //玩家 
+}
+
+//pvp begin Ntf
+message CSNtfPvpBegin {
+uint32               PvpId       = 1;    //pvpId               
+}
+
+message CSNtfPvpSeq {
+uint32              Seq          = 1;
+CSDTPvpSeq          PvpSeq       = 2;
+}
+
+message CSNtfPlayerFinish{
+CSDTPlayerFinish PlayerFinish = 1; //大逃杀数据
+}
+
+//pvp end Ntf
+message CSNtfPvpEnd {
+uint32                       PvpId      = 1;    //pvpId
+CSDTPvpCampResult            CampResult = 2;    //阵营结果
+}
+
+message CSNtfMarquee{
+uint32	Id          = 1; //跑马灯id
+string	Content     = 2; //内容
+int64	StartTime   = 3; //起始时间
+int64	EndTime     = 4; //截止时间
+uint32	Frequency   = 5; //滚动频率
+}
+
+message CSNtfRemoveMarquee{
+uint32	Id          = 1; //跑马灯id
+}
+/*************************具体包体NTF END**********************************/

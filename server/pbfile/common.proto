@@ -1,0 +1,465 @@
+syntax = "proto3";
+package msg;
+
+/*******csprotocol.proto和ssprotocol.proto中公共部分定义在此*********/
+
+enum RESULT {
+    SUCCESS                         = 0; //通用成功
+    FAIL                            = 1; //通用失败
+    SERVER_STOP                     = 2;
+    SERVER_CLOSING                  = 3;
+    VERSION_NOT_ALLOW               = 4;
+    WAIT_COUNT_LIMIT                = 5;
+    AUTHENTIC_FAIL                  = 6;
+    TIMEOUT                         = 7;
+    TEAM_MATCHING                   = 8;
+    ACTIVECODE_AUTHENTIC_FAIL       = 9;
+    ACCOUNT_FROZED                  = 10;  //账号被封
+    DEV_FROZED                      = 11;  //设备被封
+    DIRTY_WORD                      = 12;  //敏感词汇
+}
+
+//通用原因
+enum REASON {
+    REASON_NULL         = 0; //null
+    SYSTEM              = 1; //系统错误
+    INACTIVE            = 2; //不活跃
+    RELOGIN             = 3; //重登陆
+    SERVER_STOPING      = 5; //服务器停服中
+    REDIRECT_HALL_SERVER= 6; //重定向hallserver
+}
+
+//通用原因
+enum SOURCE {
+    SOURCE_NULL                      = 0; //null
+    PLAYER_CHESS_CONVERT_MONEY       = 1; //棋手转换为货币
+    SCENE_CONVERT_MONEY              = 2; //场景转换为货币
+    EVAL                      	     = 3;
+    MAIL                      	     = 4;
+    BUY_EGG                          = 5; //购买扭蛋
+    SET_NAME                         = 6; //修改名字
+    HEAD_PIC_CONVERT_MONEY           = 7; //头像转换为货币
+    SELL_ITEM                        = 8; //出售装备
+}
+
+//玩家状态
+enum PLAYERSTATUS {
+    PLAYERSTATUS_OFFLINE     = 0;  //离线
+    PLAYERSTATUS_HALL        = 1;  //大厅中
+    PLAYERSTATUS_PVP         = 2;  //pvp中
+    PLAYERSTATUS_TEAM        = 3;  //组队中
+    PLAYERSTATUS_PVP_OFFLINE = 4;  //pvp离线
+}
+
+//平台类型
+enum PLATFORMTYPE {
+    PLATFORMTYPE_OTHER   = 0; //其他
+    PLATFORMTYPE_ANDROID = 1; //安卓
+    PLATFORMTYPE_IOS     = 2; //ios
+}
+
+enum CHANELTYPE {
+    CHANELTYPE_GUEST        = 0;       //游客
+    CHANELTYPE_LY           = 1;       //龙渊 {code:xxx}
+    CHANELTYPE_4399         = 2;       //4399 {state:xxx,uid:xxx}
+    CHANELTYPE_360          = 3;       //360  {access_token:xxx}
+    CHANELTYPE_BAIDU        = 4;       //百度  {access_token:xxx}
+    CHANELTYPE_DANGLE       = 5;       //当乐  {access_token:xxx,umid:xxx}
+    CHANELTYPE_KUPAI        = 6;       //酷派  {access_token:xxx,openid:xxxx}
+    CHANELTYPE_LIANXIANG    = 7;       //联想  {access_token:xxx}
+    CHANELTYPE_XIAOMI       = 8;       //小米  {session:xxxx,uid:xxxx}
+    CHANELTYPE_YINGYONGHUI  = 9;       //应用汇 {access_token:xxx}
+    CHANELTYPE_OPPO         = 10;      //OPPO  {access_token:xxx,ssoid:xxx}
+    CHANELTYPE_VIVO         = 11;      //VIVO  {access_token:xxx}
+    CHANELTYPE_HUAWEI       = 12;      //华为   {gameAuthSign：xxxx,playerId:xxxx,ts:xxxx}
+    CHANELTYPE_QQ           = 13;      //qq(应用宝)    {openid：xxxx,access_token:xxxx,pf:xxxxx,pfkey:xxxx,pay_token:xxxx}  
+    CHANELTYPE_WX           = 14;      //微信   {openid：xxxx,access_token:xxxx,pf:xxxxx,pfkey:xxxx}
+    CHANELTYPE_UC           = 15;      //UC {sid:xxxxx}
+    CHANELTYPE_JINLI        = 16;      //金立 {access_token:xxx,playerId:xxxx}
+    CHANELTYPE_MEIZU        = 17;      //魅族 {seesion_id:xxxx,uid:xxxx}
+    CHANELTYPE_LY_IOS       = 18;      //IOS {code:xxx}{待删除}
+    CHANELTYPE_TWITTER      = 19;      //推特 {oauth_token:xxxx,oauth_token_secret:xxxx}
+    CHANELTYPE_LINE         = 20;      //line {access_token:xxxx}
+    CHANELTYPE_DMM          = 21;      //dmm
+    CHANELTYPE_LY_JP        = 22;      //龙渊(日本)
+    CHANELTYPE_GOOGLE_PAY   = 23;      //google 支付
+    CHANELTYPE_IOS_PAY      = 24;      //ios支付
+    
+    CHANELTYPE_MAX          = 37;      //渠道类型暂不能超过36
+
+    CHANELTYPE_SESSION      = 50;      //用于客户端在游戏中重连服务器
+    CHANELTYPE_ID           = 51;      //登陆某个玩家id(登陆者必须在白名单内)
+    CHANELTYPE_IOS_GOOGLE_PAY=52;      //ios和google支付
+}
+
+//app version升级类型
+enum VERSIONUPGRADETYPE {
+    VERSIONUPGRADETYPE_NULL     = 0; //无需升级
+    VERSIONUPGRADETYPE_FORCE    = 1; //强制升级
+    VERSIONUPGRADETYPE_OPTIONAL = 2; //可选升级
+}
+
+//网络类型
+enum NETTYPE {
+    NETTYPE_NULL          = 0; //不可访问
+    NETTYPE_MOBILENETWORK = 1; //移动网络
+    NETTYPE_WIFI          = 2; //wifi
+}
+
+//登陆类型
+enum LOGINTYPE {
+    LOGIN_NORMAL    = 0; //正常登陆
+    LOGIN_RECONNECT = 1; //重连登陆
+    LOGIN_PVPFINISH = 2; //pvp结束的登陆
+}
+
+enum ATTRTYPE{
+    ATTRTYPE_NULL                   = 0;
+    ATTRTYPE_MONEY                  = 33;   //金币属性
+    ATTRTYPE_CHANNEL                = 34;   //渠道属性
+    ATTRTYPE_HEAD_PIC               = 102;  //头像属性
+    ATTRTYPE_CDK_COND_STATUS        = 115;  //cdkey状态
+    ATTRTYPE_VERSION                = 137;  //版本号属性
+    ATTRTYPE_NOTICE_LABEL_TYPE      = 163;  //公告标签类型
+    ATTRTYPE_NOTICE_TYPE            = 166;  //公告类型
+    ATTRTYPE_FROZEN_TYPE            = 167;  //封禁类型
+}
+
+//物品类型
+enum ITEMTYPE {
+    ITEMTYPE_NULL       = 0;
+    CANDY               = 1;  //糖果,游戏中的货币
+    CHESS_PLAYER        = 2;  //棋手
+    SCENE               = 3;  //场景
+    HEAD_PIC            = 4;  //头像
+
+    ITEMTYPE_MAX        = 5;
+}
+
+//道具品质
+enum ITEMQUALITY {
+    NULL                = 0;
+
+    WHITE               = 1;  //白
+    GREEN               = 2;  //绿
+    BLUE                = 3;  //蓝
+    PURPLE              = 4;  //紫
+    ORANGE              = 5;  //橙
+
+    MAX                 = 6;
+}
+
+enum GAMEZONE_TYPE{
+    GAMEZONE_TYPE_CHINA     = 0;
+    GAMEZONE_TYPE_JP        = 1;
+}
+
+//物品累计类型
+enum ITEMACCUMTYPE {
+    NOT_MULTIPLY            = 0;    //不可叠加
+    MULTIPLY                = 1;    //可叠加
+}
+
+//物品售卖状态
+enum ITEMSELLSTATUS {
+    NOT_SELL                = 0;    //不可出售
+    SELL                    = 1;    //可出售
+    INDATE_NOT_SELL         = 2;    //活动有效期内不可出售,活动到期可出售
+}
+
+//pvp模式
+enum PVPMODE{
+    MODE_MAIN           = 0; //pvp快速主模式
+    //MODE_TEAM   = 1; //pvp团战模式
+    MODE_RANK           = 1; //排位模式
+    MODE_ESCAPE_KILL    = 2; //大逃杀
+    PVE                 = 3; //pve
+    CUSTOM              = 4; //自定义
+    NORMAL              = 5; //只含快速和排位两种情况
+    MOBA                = 6; //5v5
+    MOBA_CUSTOM         = 7; //5v5自定义
+    AUTO_CHESS          = 8;
+    MODE_MAX            = 9; //pvp模式最大数
+}
+
+//地图模式
+enum MAPTYPE {
+    MAPTYPE_NULL        = 0;
+    MAPTYPE_MELEE               = 1;  //塔防
+    MAPTYPE_OCCUPY_ZONE         = 2;  //区域占领
+    MAPTYPE_ESCORT_RESOURCE     = 3;  //护送资源
+    MAPTYPE_FOOTBALL            = 4;  //足球模式
+    MAPTYPE_FLAG                = 5;  //夺旗模式
+    MAPTYPE_TWOWAY_ESCORT       = 6;  //双向护送
+    MAPTYPE_RUGBY               = 7;  //橄榄球
+    MAPTYPE_ROBBERY             = 8;  //抢金币
+    MAPTYPE_KILL_BOSS           = 9;  //杀Boss
+    MAPTYPE_KILL                = 10; //死亡
+    MAPTYPE_HOOK                = 11; //钩子
+    MAPTYPE_HITBACK             = 12; //术士战争
+    MAPTYPE_ESCAPE_KILL         = 13; //大逃杀
+    MAPTYPE_PVE                 = 14; //pve
+    MAPTYPE_ROBOT_CHICKEN       = 15; //抢鸡
+    MAPTYPE_MOBA                = 16; //传统5v5
+    MAPTYPE_MOBA_EXT            = 17; //扩展5v5
+    MAPTYPE_MAX                 = 18; //
+}
+
+enum WINTYPE {
+    WINTYPE_FAIL             = 0;    //失败
+    WINTYPE_WIN              = 1;    //胜利
+    WINTYPE_DRAW             = 2;    //平局
+}
+
+enum ORDERSTATE{
+    ORDERSTATE_NULL         = 0;
+    ORDERSTATE_CREATE       = 1; //订单创建
+    ORDERSTATE_INVALID      = 2; //非法订单
+    ORDERSTATE_VERIFY_FAIL  = 3; //订单验证失败
+    ORDERSTATE_OTHER        = 4; //订单其他错误
+    ORDERSTATE_DELIVERY     = 5; //订单已发货
+}
+
+enum RANKTYPE{
+    RANKTYPE_NULL           = 0;
+    RANKTYPE_MVP            = 1; //mvp排行榜
+    RANKTYPE_MMR            = 2; //奖章排行榜
+    RANKTYPE_ESCAPE         = 3; //大逃杀排行榜
+    RANKTYPE_PVE            = 4; //pve排行榜
+    RANKTYPE_TOTAL_ESCAPE   = 5; //大逃杀累计排行榜
+    RANKTYPE_ACHIEVEMENT    = 6; //成就排行榜
+    RANKTYPE_MAX            = 7;
+}
+
+enum FROZEN_TYPE{
+    FROZEN_TYPE_NULL        = 0;
+    FROZEN_TYPE_ACCOUNT     = 1; //封号
+    FROZEN_TYPE_DEV         = 2; //封设备
+    FROZEN_TYPE_CHAT        = 3; //世界聊天禁言
+    FROZEN_TYPE_PUBLISH_STATE=4; //封禁发布圈子状态
+    FROZEN_TYPE_MAX         = 5;
+}
+
+enum NOTICETYPE{
+    NOTICETYPE_NULL             =   0;
+    NOTICETYPE_OPEN             =   1;  //开服
+    NOTICETYPE_STOP             =   2;  //停服
+    NOTICETYPE_FROZE_ACCOUNT    =   3;  //封账号
+    NOTICETYPE_FROZE_DEV        =   4;  //封设备
+    NOTICETYPE_ACTIVE_CODE      =   5;  //激活码
+    NOTICETYPE_MAX              =   6;
+}
+
+enum CODETYPE{
+CODETYPE_NULL       = 0;
+CODETYPE_CDKEY      = 2; //一次性兑换码（绑定礼包不可重复领取）
+}
+
+enum GREEN_STATE{
+    GREEN_STATE_PASS                = 0;
+    GREEN_STATE_CHECKING            = 1;
+    GREEN_STATE_REVIEW              = 2;
+    GREEN_STATE_BLOCK               = 3;
+}
+
+enum SEQTYPE {
+SEQTYPE_GAMETIME_MAX     = 0;    //游戏最大时长
+SEQTYPE_OFFLINE          = 1;    //掉线
+SEQTYPE_ADD_CHESSMAN     = 2;
+SEQTYPE_RMV_CHESSMAN     = 3;
+SEQTYPE_BUY_CHESSMAN     = 4;
+SEQTYPE_RECYCLE_CHESSMAN = 5;
+SEQTYPE_MOVE_CHESSMAN    = 6;
+SEQTYPE_LOCK_SHOP        = 7;
+SEQTYPE_REFRESH_SHOP     = 8;
+}
+
+enum CDKCONDSTATUS{
+CDKCONDSTATUS_ALL       = 0; //所有
+CDKCONDSTATUS_UN_USE    = 1; //未使用
+CDKCONDSTATUS_USE       = 2; //已使用
+}
+
+/*
+Para参数说明：
+    Para[0]-到期时间。
+    和Consume保持一致，把InstanceId从Para中提出来
+*/
+message Award {
+uint32               Id           = 1;  //奖励物品ID
+uint32               Count        = 2;  //奖励物品数量
+repeated int64       Para         = 3;  //辅助参数
+uint64               InstanceId   = 4;  //实例ID
+}
+
+/*
+Para参数说明：
+    Para[0]-折扣价格。
+    为了不和折扣价格混用，把InstanceId从Para中提出来
+*/
+message Consume{
+uint32               Id           = 1;  //消耗物品ID
+uint32               Count        = 2;  //消耗物品数量
+repeated int64       Para         = 3;  //辅助参数
+uint64               InstanceId   = 4;  //实例ID
+}
+
+message CSDTItem{
+uint32              Id          = 1;
+uint32              Count       = 2;
+uint64              InstanceId  = 3;
+repeated int64      Para        = 4;
+}
+
+message CSDTPlayerStatusInfo {
+string                Id             = 1;    //id
+PLAYERSTATUS          PlayerStatus   = 2;    //玩家状态
+uint32                MapId          = 3;    //正在进行的pvp mapId
+string                ApkVersion     = 4;    //版本号
+}
+
+message PvpPlayerData {
+string               Id                 = 1;    //id
+string               UsrName            = 2;    //玩家用户名
+uint32               Index              = 3;    //玩家索引
+uint32               Camp               = 4;    //阵营
+bool                 IsRobot            = 5;    //是否机器人
+uint32               StrengthLevel      = 6;    //实力等级
+uint32               HeadPic            = 7;    //头像
+uint32               TeamPlayerNum      = 8;   //所在队伍人数
+uint32               MMR                = 9;   //MMR
+uint32               Lvl                = 10;   //等级
+int64                ReqTime            = 11;   //申请pvp时间
+PLATFORMTYPE         PlatformType       = 12;   //平台类型
+uint32               TeamId             = 13;   //队伍Id
+WINTYPE              WinType            = 14;   //最近胜利类型
+uint32               ResultCnt          = 15;   //最近战斗连续结果数
+uint32               Cup                = 16;   //杯段
+uint32               HeadPicFrame       = 17;   //头像框
+string               ApkVersion         = 18;
+string               ResourceVersion    = 19;
+uint32               Slot               = 20;   //槽号(自定义房间用)
+}
+
+message CSDTPlayerBaseInfo {
+string                Id            = 1;    //玩家id
+string                UsrName       = 2;    //用户名
+}
+
+message CSDTPlayerDetailInfo{
+CSDTPlayerBaseInfo BaseInfo = 1;   //玩家基础信息
+CSDTStat           Stat     = 2;   //玩家统计信息
+}
+
+message CSDTStat {
+uint32               MMR                  = 10;//MMR
+uint32               Cup                  = 12;//杯段
+}
+
+message CSDTNumRankItem {
+string                Id            = 1;    //玩家id
+uint32                Number        = 4;    //值
+int32                 Rank          = 5;    //排名
+}
+
+message CSDTWorldChat{
+CSDTPlayerBaseInfo  BaseInfo        = 1; 
+string              Content         = 2;     
+}
+
+message CSDTMail{
+uint32 Id               = 1;
+string Title            = 2;    //标题
+string Content          = 3;    //正文
+repeated Award Awards   = 4;    //奖励
+int64  Ts               = 5;    //邮件发送时间
+bool   IsRead           = 6;    //是否已读
+bool   IsGetAward       = 7;    //是否领取奖励
+}
+
+//公告相关---------begin------
+message CSDTNoticeInfo {
+repeated CSDTNotice  Data        = 1;    //公告
+}
+
+message CSDTNotice {
+uint32               Id          = 1;    //公告id
+string               Title       = 2;    //标题
+string               Content     = 3;    //内容
+string               Label       = 4;    //标签
+uint32               LabelType   = 5;    //标签类型
+}
+//--------------end------------
+
+message SeqMoveChessman{
+uint32              moveType    = 1;
+uint32              SrcX        = 2;
+uint32              SrcY        = 3;
+uint32              DstX        = 4;
+uint32              DstY        = 5;
+}
+
+message SeqLockShop{
+bool                Lock        = 1;
+}
+
+message SeqData {
+SEQTYPE              type          = 1;    //类型
+SeqMoveChessman      MoveChessman  = 2;
+SeqLockShop          LockShop      = 3;
+}
+
+message PlayerSeq {
+uint32               Index        = 1;    //玩家索引    
+repeated SeqData     SeqData      = 2;    //帧数据 
+}
+
+message CSDTPvpSeq {
+repeated PlayerSeq   PlayerSeq      = 1;    //玩家帧数据
+int64                Ts             = 2;   
+}
+
+message CSDTPvpStat {
+uint32                DeathNum           = 1;  //总死亡数
+uint32                KillNum            = 2;  //总击杀数
+uint32                WaterDeathNum      = 3;  //水地形死亡次数
+uint32                HurtGroundDeathNum = 4;  //普通伤害地形（地刺）死亡次数
+repeated CSDTRoleStat WinRoleStat        = 5;  //赢方角色使用统计
+repeated CSDTRoleStat FailRoleStat       = 6;  //输方角色使用统计
+repeated CSDTRoleStat DrawRoleStat       = 7;  //平方角色使用统计
+uint32                MvpRoleId          = 8;  //吃鸡英雄id
+repeated   uint32     MvpSkills          = 9;  //吃鸡英雄技能
+}
+
+message CSDTPvpCampResult {
+repeated CSDTCampData      Camp         = 1;    //阵营数据统计
+uint32                     Camp1Score   = 3;    //阵营1分值
+uint32                     Camp2Score   = 4;    //阵营2分值
+}
+
+message CSDTCampData {
+uint32                     Camp         = 1;    //阵营
+uint32                     Rank         = 2;    //阵营排名
+WINTYPE                    WinType      = 3;    //胜利状态
+repeated CSDTPvpPlayerStat PlayerStat   = 4;    //玩家统计
+}
+
+message CSDTRoleStat {
+uint32               Id           = 1;    //角色id
+uint32               UseTime      = 2;    //使用总时长 单位：s
+uint32               KillCnt      = 3;    //击杀数
+uint32               AssistKillCnt= 4;    //助攻数
+uint32               DeathCnt     = 5;    //死亡数
+repeated uint32      Talents      = 6;    //天赋列表
+}
+
+message CSDTPvpPlayerStat {
+string               Id         = 1;
+}
+
+message CSDTPlayerFinish{
+uint32     PlayerIndex       = 1; //玩家id
+uint32     DeathIndex        = 2; //死亡序号
+uint32     FrameIndex        = 3; //帧号
+CSDTPvpPlayerStat PlayerStat = 4; //个人数据
+}
